@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Color codes
+GREEN="\033[0;32m"
+BLUE="\033[0;34m"
+CYAN="\033[0;36m"
+YELLOW="\033[1;33m"
+RESET="\033[0m"
+
+# Animation header
+echo -e "${CYAN}"
+echo " ____       _               _____ ____   ____ "
+echo "|  _ \ _ __(_)_ __ ___   __|_   _|  _ \ / ___|"
+echo "| |_) | '__| | '_ \` _ \` _ \ / _ \| | | |_) | |  _ "
+echo "|  __/| |  | | | | | | |  __/| | |  _ <| |_| |"
+echo "|_|   |_|  |_|_| |_| |_|\___||_| |_| \_\\____|"
+echo -e "${RESET}"
+echo -e "           powered by ! 𝐏𝐫𝐢𝐦𝐞・𝐓𝐑𝐆"
+echo ""
+
+# Menu
+echo -e "${GREEN}1. Install Nebula Theme${RESET}"
+echo -e "${BLUE}2. Install Reviactyl Theme${RESET}"
+echo -e "3. Exit"
+echo ""
+read -p "Select an option [1-3]: " choice
+
+if [[ $choice == "1" ]]; then
+    echo -e "${GREEN}Installing Nebula Theme...${RESET}"
+    
+    # Nebula installation commands
+    git clone https://github.com/username5642/nebula.git
+    cd nebula || exit
+    bash install.gg
+
+    sudo apt-get install -y ca-certificates curl gnupg
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    sudo apt-get update
+    sudo apt-get install -y nodejs
+    npm i -g yarn
+    cd /var/www/pterodactyl || exit
+    yarn
+    sudo apt install -y zip unzip git curl wget
+    wget "$(curl -s https://api.github.com/repos/BlueprintFramework/framework/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)" -O release.zip
+    mv release.zip /var/www/pterodactyl/release.zip
+    cd /var/www/pterodactyl || exit
+    unzip release.zip
+    touch /var/www/pterodactyl/.blueprintrc
+    echo 'WEBUSER="www-data";' >> /var/www/pterodactyl/.blueprintrc
+    echo 'OWNERSHIP="www-data:www-data";' >> /var/www/pterodactyl/.blueprintrc
+    echo 'USERSHELL="/bin/bash";' >> /var/www/pterodactyl/.blueprintrc
+    chmod +x blueprint.sh
+    bash blueprint.sh
+    echo -e "${GREEN}✅ Successfully Installed Nebula Theme!${RESET}"
+
+elif [[ $choice == "2" ]]; then
+    echo -e "${BLUE}Installing Reviactyl Theme...${RESET}"
+
+    cd /var/www/pterodactyl || exit
+    rm -rf *
+    curl -Lo panel.tar.gz https://github.com/reviactyl/panel/releases/latest/download/panel.tar.gz
+    tar -xzvf panel.tar.gz
+    chmod -R 755 storage/* bootstrap/cache/
+    COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
+    php artisan migrate --seed --force
+    chown -R www-data:www-data /var/www/pterodactyl/*
+    sudo systemctl restart pteroq.service
+    echo -e "${BLUE}✅ Successfully Installed Reviactyl Theme!${RESET}"
+
+elif [[ $choice == "3" ]]; then
+    echo "Exiting..."
+    exit 0
+
+else
+    echo "Invalid option!"
+    exit 1
+fi
