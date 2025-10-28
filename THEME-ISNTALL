@@ -11,7 +11,7 @@ RESET="\033[0m"
 echo -e "${CYAN}"
 echo " ____       _               _____ ____   ____ "
 echo "|  _ \ _ __(_)_ __ ___   __|_   _|  _ \ / ___|"
-echo "| |_) | '__| | '_ \` _ \` _ \ / _ \| | | |_) | |  _ "
+echo "| |_) | '__| | '_ \` _ \ / _ \| | | |_) | |  _ "
 echo "|  __/| |  | | | | | | |  __/| | |  _ <| |_| |"
 echo "|_|   |_|  |_|_| |_| |_|\___||_| |_| \_\\____|"
 echo -e "${RESET}"
@@ -25,10 +25,10 @@ echo -e "3. Exit"
 echo ""
 read -p "Select an option [1-3]: " choice
 
-if [[ $choice == "1" ]]; then
+# Function to install Nebula Theme
+install_nebula() {
     echo -e "${GREEN}Installing Nebula Theme...${RESET}"
-    
-    # Nebula installation commands
+
     git clone https://github.com/username5642/nebula.git
     cd nebula || exit
     bash install.gg
@@ -53,9 +53,16 @@ if [[ $choice == "1" ]]; then
     echo 'USERSHELL="/bin/bash";' >> /var/www/pterodactyl/.blueprintrc
     chmod +x blueprint.sh
     bash blueprint.sh
-    echo -e "${GREEN}✅ Successfully Installed Nebula Theme!${RESET}"
 
-elif [[ $choice == "2" ]]; then
+    echo -e "${GREEN}✅ Successfully Installed Nebula Theme!${RESET}"
+    cd /var/www/pterodactyl || exit
+    echo "Redirecting to panel directory..."
+    sleep 2
+    cd /var/www/pterodactyl || exit
+}
+
+# Function to install Reviactyl Theme
+install_reviactyl() {
     echo -e "${BLUE}Installing Reviactyl Theme...${RESET}"
 
     cd /var/www/pterodactyl || exit
@@ -67,13 +74,28 @@ elif [[ $choice == "2" ]]; then
     php artisan migrate --seed --force
     chown -R www-data:www-data /var/www/pterodactyl/*
     sudo systemctl restart pteroq.service
+
     echo -e "${BLUE}✅ Successfully Installed Reviactyl Theme!${RESET}"
+    cd /var/www/pterodactyl || exit
+    echo "Redirecting to panel directory..."
+    sleep 2
+    cd /var/www/pterodactyl || exit
+}
 
-elif [[ $choice == "3" ]]; then
-    echo "Exiting..."
-    exit 0
-
-else
-    echo "Invalid option!"
-    exit 1
-fi
+# Main logic
+case $choice in
+    1)
+        install_nebula
+        ;;
+    2)
+        install_reviactyl
+        ;;
+    3)
+        echo "Exiting..."
+        exit 0
+        ;;
+    *)
+        echo "Invalid option!"
+        exit 1
+        ;;
+esac
